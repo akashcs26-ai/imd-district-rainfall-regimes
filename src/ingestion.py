@@ -67,7 +67,7 @@ def read_and_validate(file_path):
     audit_entries = []
 
     try:
-        with open(file_path, "r", newline="", encoding="utf-8-sig") as file:
+        with open(file_path, "r", newline="", encoding="utf-8") as file:
 
             reader = csv.DictReader(file, delimiter=";")
 
@@ -96,9 +96,31 @@ def read_and_validate(file_path):
 
     return clean_records, audit_entries
 
+def cleaned_data(records, audit_entries,output_folder):
+    output_folder = Path(output_folder)
+    output_folder.mkdir(parents=True, exist_ok=True)
 
+    cleaned_file_path = output_folder / "cleaned_data.csv"
+    audit_file_path = output_folder / "audit_log.txt"
 
-if __name__ == "__main__":
+    with open(cleaned_file_path, "w", newline="", encoding="utf-8") as cleaned_file:
+        if records:
+            fieldnames = records[0].keys()
+            writer = csv.DictWriter(cleaned_file, fieldnames=fieldnames, delimiter=";")
+            writer.writeheader()
+            writer.writerows(records)
+
+    with open(audit_file_path,"w",encoding="utf-8") as audit_file:
+        for entry in audit_entries:
+            audit_file.write(entry + "\n")
+            audit_file.write("\nSUMMARY\n")
+            audit_file.write("-" * 40 + "\n")
+            audit_file.write(f"Total records processed: {len(records)}\n")
+            audit_file.write(f"Total validation errors: {len(audit_entries)}\n")
+    
+    return cleaned_file_path, audit_file_path
+
+"""if __name__ == "__main__":
 
     project_folder = Path(__file__).resolve().parent.parent
 
@@ -116,4 +138,26 @@ if __name__ == "__main__":
     if errors:
         print("\nFirst few errors:")
         for error in errors[:5]:
-            print(error)
+            print(error)"""
+
+if __name__ == "__main__":
+
+    project_folder = Path(__file__).resolve().parent.parent
+
+    input_file = project_folder / "data" / "raw" / "Indian Rainfall Dataset District-wise Daily Measurements.csv"
+
+    output_folder = project_folder / "data" / "processed"
+
+    records, errors = read_and_validate(input_file)
+
+    clean_file, audit_file = cleaned_data(
+        records, errors, output_folder
+    )
+
+    print("Data cleaning completed!")
+    print("Total records:", len(records))
+    print("Total validation errors:", len(errors))
+
+    print("\nFiles generated:")
+    print(clean_file)
+    print(audit_file)
