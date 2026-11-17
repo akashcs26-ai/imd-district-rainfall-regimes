@@ -142,6 +142,8 @@ def cleaned_data(records, audit_entries,output_folder):
 
 if __name__ == "__main__":
 
+    
+    
     project_folder = Path(__file__).resolve().parent.parent
 
     input_file = project_folder / "data" / "raw" / "Indian Rainfall Dataset District-wise Daily Measurements.csv"
@@ -161,3 +163,47 @@ if __name__ == "__main__":
     print("\nFiles generated:")
     print(clean_file)
     print(audit_file)
+    invalid_days = sum("not a valid day" in error for error in errors)
+    
+    invalid_rainfall = sum("invalid rainfall" in error for error in errors)
+    
+    non_numeric = sum("non-numeric" in error for error in errors)
+    
+    corrupted = sum("Corrupted CSV" in error for error in errors)
+    
+    invalid_month = sum("Invalid month" in error for error in errors)
+    
+    print("\nVALIDATION SUMMARY")
+    print("--------------------------")
+    print("Invalid calendar days:", invalid_days)
+    print("Invalid rainfall values:", invalid_rainfall)
+    print("Non-numeric values:", non_numeric)
+    print("Corrupted records:", corrupted)
+    print("Invalid month values:", invalid_month)
+
+    with open(clean_file, "r", newline="", encoding="utf-8") as file:
+
+        reader = csv.DictReader(file,delimiter=";")
+        exported_records = list(reader)
+
+print("\nEXPORT VERIFICATION")
+print("--------------------------")
+print("Records exported:", len(exported_records))
+print("Columns exported:", len(exported_records[0]))
+
+if len(exported_records) == len(records):
+    print("Record count verification: Passed")
+else:
+    print("Record count verification: Failed")
+    february_records = [
+    row for row in exported_records
+    if row["month"] == "2"
+]
+
+    if february_records:
+        print("\nFEBRUARY VALIDATION")
+        print("--------------------------")
+
+        print("29th day:", repr(february_records[0]["29th"]))
+        print("30th day:", repr(february_records[0]["30th"]))
+        print("31st day:", repr(february_records[0]["31st"]))
