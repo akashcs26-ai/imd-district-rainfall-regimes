@@ -54,3 +54,11 @@ def make_dashboard(df, save_path="reports/interactive_dashboard.html"):
     with open(save_path, "w", encoding="utf-8") as f:
         f.write(fig1.to_html(include_plotlyjs=True))
         f.write(fig2.to_html(include_plotlyjs=False))
+def plot_correlation_heatmap(df, save_path="reports/figures/correlation_heatmap.png"):
+    corr = df[["Monthly_Total", "Rainy_Days", "Heavy_Rain_Days", "Max_Daily_Rain"]].corr()
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.heatmap(corr, annot=True, fmt=".2f", cmap="coolwarm", vmin=-1, vmax=1, ax=ax)
+    plt.title("Correlation between rainfall features")
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=150)
+    plt.close()
