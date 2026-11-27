@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
+import pandas as pd
 def plot_pareto(df, save_path="reports/figures/q10_pareto.png"):
     top20 = df.groupby(["state", "district"])["Heavy_Rain_Days"].sum().sort_values(ascending=False).head(20)
     cum_pct = top20.cumsum() / top20.sum() * 100
@@ -59,6 +60,18 @@ def plot_correlation_heatmap(df, save_path="reports/figures/correlation_heatmap.
     fig, ax = plt.subplots(figsize=(8, 6))
     sns.heatmap(corr, annot=True, fmt=".2f", cmap="coolwarm", vmin=-1, vmax=1, ax=ax)
     plt.title("Correlation between rainfall features")
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=150)
+    plt.close()
+def plot_violin_tiers(df, save_path="reports/figures/distribution_regimes.png"):
+    yearly = df.groupby(["state", "district"])[["Monthly_Total", "Rainy_Days"]].sum().reset_index()
+    yearly["Tier"] = pd.cut(yearly["Monthly_Total"], bins=[0, 750, 1500, 2500, 20000], labels=["Dry", "Moderate", "Wet", "Very wet"])
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.violinplot(data=yearly, x="Tier", y="Rainy_Days", ax=ax)
+    ax.set_xlabel("Rainfall tier (yearly rain in mm)")
+    ax.set_ylabel("Rainy days per year")
+    sns.despine()
+    plt.title("Rainy days per year in each rainfall tier")
     plt.tight_layout()
     plt.savefig(save_path, dpi=150)
     plt.close()
