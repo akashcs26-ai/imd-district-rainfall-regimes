@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+import plotly.express as px
 def plot_pareto(df, save_path="reports/figures/q10_pareto.png"):
     top20 = df.groupby(["state", "district"])["Heavy_Rain_Days"].sum().sort_values(ascending=False).head(20)
     cum_pct = top20.cumsum() / top20.sum() * 100
@@ -44,3 +45,12 @@ def plot_state_heatmap(df, save_path="reports/figures/q11_heatmap.png"):
     plt.tight_layout()
     plt.savefig(save_path, dpi=150)
     plt.close()
+def make_dashboard(df, save_path="reports/interactive_dashboard.html"):
+    yearly = df.groupby(["state", "district"])[["Monthly_Total", "Heavy_Rain_Days"]].sum().reset_index()
+    yearly = yearly[yearly["Monthly_Total"] > 0]
+    fig1 = px.treemap(yearly, path=[px.Constant("India"), "state", "district"], values="Monthly_Total", color="Heavy_Rain_Days", color_continuous_scale="Blues", hover_data=["Heavy_Rain_Days"], title="Yearly rainfall: click a state to see its districts")
+    monthly = df.groupby(["state", "month"])["Monthly_Total"].median().reset_index()
+    fig2 = px.bar(monthly, x="state", y="Monthly_Total", animation_frame="month", range_y=[0, monthly["Monthly_Total"].max()], title="Median monthly rainfall by state (use the slider)")
+    with open(save_path, "w", encoding="utf-8") as f:
+        f.write(fig1.to_html(include_plotlyjs=True))
+        f.write(fig2.to_html(include_plotlyjs=False))
