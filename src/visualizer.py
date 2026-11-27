@@ -18,8 +18,6 @@ def plot_pareto(df, save_path="reports/figures/q10_pareto.png"):
     plt.tight_layout()
     plt.savefig(save_path, dpi=150)
     plt.close()
-
-
 def plot_state_boxplot(df, save_path="reports/figures/q11_boxplot.png"):
     top10 = df.groupby("state")["district"].nunique().sort_values(ascending=False).head(10).index
     data = df[df["state"].isin(top10)]
@@ -30,6 +28,19 @@ def plot_state_boxplot(df, save_path="reports/figures/q11_boxplot.png"):
     ax.tick_params(axis="x", rotation=45)
     sns.despine()
     plt.title("Monthly rainfall in the top 10 states")
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=150)
+    plt.close()
+def plot_state_heatmap(df, save_path="reports/figures/q11_heatmap.png"):
+    top10 = df.groupby("state")["district"].nunique().sort_values(ascending=False).head(10).index
+    data = df[df["state"].isin(top10)]
+    table = data.pivot_table(index="state", columns="month", values="Monthly_Total", aggfunc="median")
+    table = table.loc[top10]
+    fig, ax = plt.subplots(figsize=(12, 6))
+    sns.heatmap(table, annot=True, fmt=".0f", cmap="Blues", ax=ax)
+    ax.set_xlabel("Month")
+    ax.set_ylabel("State")
+    plt.title("Median monthly rainfall (mm) in the top 10 states")
     plt.tight_layout()
     plt.savefig(save_path, dpi=150)
     plt.close()
