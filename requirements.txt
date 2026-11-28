@@ -1,6 +1,5 @@
-"""Exapmle Text 1"""
-
 numpy
 pandas
 matplotlib
-
+seaborn
+plotly
