@@ -12,7 +12,6 @@ def plot_pareto(df, save_path="reports/figures/q10_pareto.png"):
     ax.bar(labels, top20.values, color="steelblue")
     ax.set_ylabel("Heavy rain days")
     ax.tick_params(axis="x", rotation=90)
-
     ax2 = ax.twinx()
     ax2.plot(labels, cum_pct.values, color="red", marker="o")
     ax2.set_ylabel("Cumulative %")
